@@ -27,7 +27,7 @@ blogController.get('/find/:id', async(req, res) => {
 
 blogController.get("/featured", async(req, res) => {
     try {
-        const blogs = await Blog.find({featured: true}).populate("userId", 'password').limit(3)
+        const blogs = await Blog.find({featured: true}).populate("userId", '-password').limit(3)
         return res.status(200).json(blogs)
     } catch (error) {
         return res.status(500).json(error)
@@ -47,7 +47,8 @@ blogController.post('/', verifyToken, async(req, res) => {
 blogController.put("/updateBlog/:id", verifyToken, async(req, res) => {
     try{
         const blog = await Blog.findById(req.params.id)
-        if(blog.userId !== req.user.id){
+        // console.log(blog.userId, req.user.id)
+        if(blog.userId.toString() !== req.user.id.toString()){
             throw new Error("you can only update your post")
 
         }
@@ -60,3 +61,42 @@ blogController.put("/updateBlog/:id", verifyToken, async(req, res) => {
 
     }
 })
+
+blogController.put("/likeBlog/:id", verifyToken, async(req, res) => {
+    try {
+        const blog = await Blog.findById(req.params.id)
+        if(blog.likes.includes(req.user.id)){
+            blog.likes =  blog.likes.filter((userId) => userId !== req.user.id)
+            await blog.save()
+
+            return res.status(201).json({msg: 'successfully liked the blog'})
+
+        }else {
+            blog.likes.push(req.user.id)
+            await blog.save()
+
+            return res.status(200).json({message:"successfully liked blog"})
+        }
+    } catch (error) {
+        return res.status(500).json(error)
+        
+    }
+})
+
+blogController.delete("/deleteBlog/:id", verifyToken, async(req, res)=> {
+    try {
+        const blog = await Blog.findById(req.params.id)
+        if(blog.userId.toString() !== req.user.id.toString()){
+            throw new Error("you can only delete your blog")
+        }
+        await Blog.findByIdAndDelete(req.params.id)
+
+        return res.status(200).json({message: "successfully deleted the blog"})
+    } catch (error) {
+        res.status(500).json(error)
+        
+    }
+})
+
+
+module.exports = blogController
