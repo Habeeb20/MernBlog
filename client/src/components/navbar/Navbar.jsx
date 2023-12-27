@@ -14,17 +14,19 @@ const Navbar = () => {
           <Link to='/'>UniqueBlog</Link>
         </div>
         <ul className={classes.center}>
-          <li className={classes.listItem}>Home</li>
+          <Link to='/'><li className={classes.listItem}>Home</li></Link>
+          
           <li className={classes.listItem}>About</li>
           <li className={classes.listItem}>Contacts</li>
-          <li className={classes.listItem}>Categories</li>
+          <Link to='/categories'><li className={classes.listItem}>Categories</li></Link>
+         
         </ul>
         <div className={classes.right}>
           <img onClick={() => setShowModal(prev => !prev)} src={womanImg} className={classes.img} />
           {showModal &&
             <div className={classes.modal}>
               <Link to='/create'>Create</Link>
-              <span>Logout</span>
+              <Link to='/login'><span>Logout</span></Link>
             </div>
           }
         </div>
