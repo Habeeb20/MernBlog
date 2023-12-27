@@ -6,6 +6,7 @@ const authController = require("./controllers/authController")
 const blogController = require("./controllers/blogController")
 dotenv.config()
 const app = express()
+const multer = require("multer")
 const port = process.env.PORT || 5000
 mongoose.set("strictQuery", false)
 mongoose
@@ -17,12 +18,31 @@ mongoose
         console.log(err)
     })
 
-
+app.use('/images', express.static('public/images'))
 app.use(express.json())
 app.use(cors())
 app.use(express.urlencoded({extended: true}))
 app.use('/auth', authController)
 app.use('/blog', blogController)
+
+const storage = multer.diskStorage({
+    destination: function(req, file, cb){
+        cb(null, 'public/images')
+    },
+    filename: function(req, file, cb){
+        cb(null, req.body.filename)
+    }
+})
+
+const upload = multer({
+    storage: storage
+})
+
+
+app.post('/upload', upload.single("image"), async(req, res) => {
+    return res.status(200).json({msg: "Successfully uploaded"})
+})
+
 
 
 app.listen(port,()=> {
